@@ -30,7 +30,14 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: "white",
+          paddingVertical: 20,
+        },
+        tabBarLabelStyle: {
+          fontFamily: "Roboto-Regular", // Set font to Roboto-Regular
+        },
+        headerShown: false, // Hide header
       }}
     >
       <Tabs.Screen

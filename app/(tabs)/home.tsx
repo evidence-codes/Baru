@@ -7,13 +7,12 @@ import ReceiveBox from "@/assets/images/svg/receive-box.svg";
 import QuestionMark from "@/assets/images/svg/question-mark.svg";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { SearchIcon } from "@/components/ui/icon";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { Center } from "@/components/ui/center";
-import BlueBox from "@/assets/images/svg/blue-box.svg";
-import SendDetails from "@/components/SendDetails";
-import ReceiveDetails from "@/components/ReceiveDetails";
+import SentBox from "@/components/SentBox";
+import ReceivedBox from "@/components/ReceivedBox";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
+  const router = useRouter();
   return (
     <SafeAreaView className="flex-1 bg-white px-4 mt-10">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -114,7 +113,6 @@ export default function HomeScreen() {
             <Text className="text-[18px] font-roboto_bold text-[#000]">
               Recent Orders
             </Text>
-
             <VStack className="mt-6">
               <Input className="bg-[#E5E5E5] h-12 rounded-full border-outline-0">
                 <InputSlot className="pl-3">
@@ -126,22 +124,42 @@ export default function HomeScreen() {
                 />
               </Input>
             </VStack>
-
             <Text className="text-[16px] font-roboto_medium text-[#000] mt-6 mb-2">
               Current Tracking
             </Text>
-
-            <SendDetails
+            <SentBox
               title="Transit"
-              id="#BARU-3445-11LO"
+              id="#BARU-3445-11L0"
               progress={50}
               locationFrom="Lekki"
               locationTo="Oshodi"
               dateFrom="10 Oct"
               dateTo="11 Oct"
+              onPress={() =>
+                router.push({
+                  pathname: "/(screens)/sent-details",
+                  params: {
+                    id: "#BARU-3445-11L0",
+                    progress: 50,
+                    from: "Lekki",
+                    to: "Oshodi",
+                    sender: "You",
+                    receiver: "1134322",
+                    createdDate: "10 Oct",
+                    estimatedDate: "11 Oct",
+                    pickupDate: "11 Oct",
+                    pickupTime: "1:30PM",
+                    weight: "5kg",
+                    status: "Transit",
+                    courierName: "Naruto HustleMaki",
+                    courierPhone: "0810-000-0000",
+                    courierLocation: "Lekki",
+                  },
+                })
+              }
             />
-
-            <ReceiveDetails
+            ;
+            <ReceivedBox
               title="Transit"
               id="#BARU-1445-12AL"
               progress={50}
@@ -149,6 +167,28 @@ export default function HomeScreen() {
               locationTo="Lekki"
               dateFrom="10 Oct"
               dateTo="11 Oct"
+              onPress={() =>
+                router.push({
+                  pathname: "/(screens)/receive-details",
+                  params: {
+                    id: "#BARU-1445-12AL",
+                    progress: 50,
+                    from: "Abeokuta",
+                    to: "Lekki",
+                    sender: "1233434",
+                    receiver: "You",
+                    createdDate: "10 Oct",
+                    estimatedDate: "11 Oct",
+                    pickupDate: "11 Oct",
+                    pickupTime: "1:30PM",
+                    weight: "7kg",
+                    status: "Transit",
+                    courierName: "Naruto HustleMaki",
+                    courierPhone: "0810-000-0000",
+                    courierLocation: "Lekki",
+                  },
+                })
+              }
             />
           </VStack>
         </VStack>
