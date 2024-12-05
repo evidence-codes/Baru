@@ -61,7 +61,23 @@ export default function AuthLayout() {
           headerShadowVisible: false,
         }}
       />
-      {/* <Stack.Screen name="signIn" options={{ headerShown: false }} /> */}
+      <Stack.Screen
+        name="login"
+        options={{
+          headerShown: true,
+          title: "",
+          headerLeft: () => (
+            <Pressable
+              onPress={() => {
+                router.back();
+              }}
+            >
+              <Icon name="chevron-left" size={14} color="black" />
+            </Pressable>
+          ),
+          headerShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }

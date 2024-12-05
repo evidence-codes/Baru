@@ -33,7 +33,7 @@ export default function GetStarted() {
 
   const handleLogin = () => {
     setShowActionsheet(false);
-    router.push("/(tabs)/home");
+    router.push("/(auth)/login");
   };
   return (
     <ImageBackground

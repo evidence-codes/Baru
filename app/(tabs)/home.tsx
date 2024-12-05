@@ -10,9 +10,44 @@ import { SearchIcon } from "@/components/ui/icon";
 import SentBox from "@/components/SentBox";
 import ReceivedBox from "@/components/ReceivedBox";
 import { useRouter } from "expo-router";
+import { Pressable } from "@/components/ui/pressable";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const [fullName, setFullName] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState<string>("");
+
+  useEffect(() => {
+    // const fetchUserInfo = async () => {
+    //   try {
+    //     const userInfoString = await SecureStore.getItemAsync("userInfo");
+    //     if (userInfoString) {
+    //       const userInfo = JSON.parse(userInfoString);
+    //       setFullName(userInfo.fullName); // Assuming fullName is a property in userInfo
+    //     }
+    //   } catch (error) {
+    //     console.error("Error retrieving user info from SecureStore:", error);
+    //   }
+    // };
+
+    // Set current date
+    const date = new Date();
+    const formattedDate = `${date.getDate()} ${date.toLocaleString("default", {
+      month: "long",
+    })}, ${date.getFullYear()}`;
+    setCurrentDate(formattedDate);
+
+    // fetchUserInfo();
+  }, []);
+
+  const handleSend = () => {
+    router.push("/(screens)/location");
+  };
   return (
     <SafeAreaView className="flex-1 bg-white px-4 mt-10">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -26,10 +61,10 @@ export default function HomeScreen() {
             />
             <VStack className="ml-4">
               <Text className="text-[14px] font-roboto_medium text-black">
-                Juwon Osadebe
+                {user?.fullName}
               </Text>
               <Text className="text-[8px] font-roboto_regular text-black">
-                11th October, 2024
+                {currentDate}
               </Text>
             </VStack>
           </VStack>
@@ -47,20 +82,22 @@ export default function HomeScreen() {
                 Send Something
               </Text>
               <VStack className="rounded-xl border border-[#D3D3D3] px-4 py-2 mt-2">
-                <VStack className="flex-row items-center justify-between">
-                  <VStack className="flex-row items-center">
-                    <SendBox />
-                    <VStack className="ml-4">
-                      <Text className="text-[14px] text-black font-roboto_medium">
-                        Send a Package
-                      </Text>
-                      <Text className="text-[12px] text-black font-roboto_regular w-5/6">
-                        Deliver a package across town.
-                      </Text>
+                <Pressable onPress={handleSend}>
+                  <VStack className="flex-row items-center justify-between">
+                    <VStack className="flex-row items-center">
+                      <SendBox />
+                      <VStack className="ml-4">
+                        <Text className="text-[14px] text-black font-roboto_medium">
+                          Send a Package
+                        </Text>
+                        <Text className="text-[12px] text-black font-roboto_regular w-5/6">
+                          Deliver a package across town.
+                        </Text>
+                      </VStack>
                     </VStack>
+                    <MaterialIcons name="keyboard-arrow-right" size={30} />
                   </VStack>
-                  <MaterialIcons name="keyboard-arrow-right" size={30} />
-                </VStack>
+                </Pressable>
               </VStack>
             </VStack>
 

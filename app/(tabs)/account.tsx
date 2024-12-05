@@ -4,8 +4,11 @@ import { Text } from "@/components/ui/text";
 import { FontAwesome6, Ionicons, FontAwesome } from "@expo/vector-icons";
 import MoneyBag from "@/assets/images/svg/money-bag.svg";
 import BriefCase from "@/assets/images/svg/briefcase.svg";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Account() {
+  const { user } = useAuth();
+
   return (
     <SafeAreaView className="flex-1 bg-white px-4 mt-10">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -18,7 +21,7 @@ export default function Account() {
           />
           <VStack className="items-center mt-2">
             <Text className="text-[22px] font-roboto_bold text-black text-center mb-2">
-              Juwon Osadebe
+              {user?.fullName}
             </Text>
             <Text className="text-[12px] font-roboto_regular text-black text-center mb-2">
               Member since Oct 2024

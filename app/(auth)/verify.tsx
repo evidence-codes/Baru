@@ -3,18 +3,82 @@ import { VStack } from "@/components/ui/vstack";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
+import { verifyOTP, resendOTP } from "@/api/auth";
+import { AxiosResponse } from "axios";
+import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
+import { AlertCircleIcon } from "@/components/ui/icon";
+
+interface OTPProps {
+  email: string;
+  otp: string;
+}
+
+// Define the expected response structure
+type verifyOTPResponse = {
+  success: boolean;
+  message: string;
+};
 
 export default function OTP() {
   const router = useRouter();
+  const params = useLocalSearchParams() as Partial<OTPProps>;
+
+  const { email } = params;
+
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(30); // Countdown timer
   const [isTimerActive, setIsTimerActive] = useState(false); // To check if timer is running
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
 
   // Create refs for each input field
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  // Handle OTP input change
+  // Mutation to send OTP
+  const {
+    mutate: verifyOTPMutation,
+    isLoading: isLoadingOTP,
+    isError,
+    error,
+  } = useMutation<
+    verifyOTPResponse,
+    Error,
+    string,
+    AxiosResponse<verifyOTPResponse>
+  >({
+    mutationFn: async (otp) => {
+      if (!email) {
+        throw new Error("Email is required");
+      }
+      const data = { email, otp };
+      console.log(data);
+      const response = await verifyOTP(data);
+      return response.data as verifyOTPResponse;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        router.push({
+          pathname: "/(auth)/profile",
+          params: { email },
+        });
+      } else {
+        console.error(data.message);
+        setErrorMessage(data.message);
+      }
+    },
+    onError: (error: any) => {
+      if (error.response) {
+        const backendErrorMessage =
+          error.response.data?.message || "An error occurred";
+        setErrorMessage(backendErrorMessage);
+      } else {
+        setErrorMessage("An error occurred while sending OTP.");
+      }
+      console.error("Error sending OTP:", error.response?.data?.message);
+    },
+  });
+
   const handleInputChange = (value: string, index: number) => {
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -26,10 +90,8 @@ export default function OTP() {
     }
   };
 
-  // Countdown timer logic
   useEffect(() => {
-    // Start the timer automatically when the component mounts
-    setIsTimerActive(true); // Start the countdown as soon as the page loads
+    setIsTimerActive(true); // Start the countdown when the page loads
 
     let interval: NodeJS.Timeout | null = null;
     if (isTimerActive && timer > 0) {
@@ -43,22 +105,37 @@ export default function OTP() {
       setIsTimerActive(false); // Stop the timer when it reaches 0
     }
 
-    // Cleanup interval when the component unmounts or when the timer stops
     return () => {
       if (interval) {
-        clearInterval(interval);
+        clearInterval(interval); // Cleanup interval when component unmounts
       }
     };
-  }, [isTimerActive, timer]); // Runs when `isTimerActive` or `timer` state changes
+  }, [isTimerActive, timer]);
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     setTimer(30); // Reset timer to 30 seconds
     setIsTimerActive(true); // Start the countdown again
+    if (!email) {
+      throw new Error("Email is required");
+    }
+    await resendOTP(email); // Resend OTP
   };
 
-  const handleProfile = () => {
-    router.push("/(tabs)/home");
+  const handleContinue = () => {
+    const otpString = otp.join("");
+    verifyOTPMutation(otpString); // Send OTP for validation
   };
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null); // Clear the error message after 3 seconds
+      }, 3000);
+
+      // Cleanup the timer when the component is unmounted or errorMessage changes
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -68,8 +145,7 @@ export default function OTP() {
         </Text>
 
         <Text className="font-inter_regular text-[12px] text-[#979797] mt-4">
-          We sent an OTP to your number at +234**********. Please enter the OTP
-          code
+          We sent an OTP to your email at {email}. Please enter the OTP code
         </Text>
       </VStack>
 
@@ -93,9 +169,8 @@ export default function OTP() {
       <VStack>
         <Text
           onPress={handleResendCode}
-          className={`font-roboto_medium text-[12px] ${
-            timer > 0 ? "text-[#979797]" : "text-[#2B63E1]"
-          } mt-4 text-center`}
+          className={`font-roboto_medium text-[12px] mt-4
+          text-center ${timer > 0 ? "text-[#979797]" : "text-[#2B63E1]"}`}
         >
           {timer > 0 ? `Send code again in (${timer}s)` : "Resend Code"}
         </Text>
@@ -107,13 +182,28 @@ export default function OTP() {
           variant="solid"
           action="primary"
           className="w-full bg-[#2B63E1] h-12 rounded-[8px] mt-6 mb-4 shadow-lg shadow-black/50"
-          onPress={handleProfile}
+          onPress={handleContinue}
+          disabled={isLoadingOTP || !email}
         >
           <ButtonText className="font-roboto_medium text-[16px] text-white">
-            Continue
+            {isLoadingOTP ? "Sending..." : "Continue"}
           </ButtonText>
         </Button>
       </VStack>
+
+      {errorMessage && (
+        <VStack className="p-4">
+          <Alert action="error" className="gap-3">
+            <AlertIcon as={AlertCircleIcon} size="lg" />
+            <AlertText
+              className="text-typography-900 font-inter_semibold text-[14px]"
+              size="sm"
+            >
+              {errorMessage}
+            </AlertText>
+          </Alert>
+        </VStack>
+      )}
     </SafeAreaView>
   );
 }

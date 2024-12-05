@@ -13,6 +13,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "@/components/useColorScheme";
+import { useReactQueryDevTools } from "@dev-plugins/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/context/AuthContext";
+import { FormProvider } from "@/context/FormContext";
+
+const client = new QueryClient();
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -63,6 +69,8 @@ export default function RootLayout() {
     return null;
   }
 
+  // useReactQueryDevTools(client);
+
   return (
     <GluestackUIProvider mode="light">
       <RootLayoutNav />
@@ -76,15 +84,29 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <GluestackUIProvider mode="light">
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
-      </ThemeProvider>
-    </GluestackUIProvider>
+    <QueryClientProvider client={client}>
+      <GluestackUIProvider mode="light">
+        <AuthProvider>
+          <FormProvider>
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="(screens)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="modal"
+                  options={{ presentation: "modal" }}
+                />
+              </Stack>
+            </ThemeProvider>
+          </FormProvider>
+        </AuthProvider>
+      </GluestackUIProvider>
+    </QueryClientProvider>
   );
 }

@@ -90,6 +90,60 @@ export default function ScreensLayout() {
             ),
           }}
         />
+
+        <Stack.Screen
+          name="location"
+          options={{
+            headerShown: true,
+            title: "Where are you sending to?",
+            headerTitleAlign: "center",
+            headerTitleStyle: {
+              fontFamily: "Roboto-Bold",
+              fontSize: 20,
+              color: "black",
+            },
+            headerStyle: {
+              backgroundColor: "#FFFFFF",
+            },
+            headerShadowVisible: false,
+            headerLeft: () => (
+              <Pressable
+                onPress={() => {
+                  router.back();
+                }}
+              >
+                <Icon name="keyboard-arrow-left" size={30} color="black" />
+              </Pressable>
+            ),
+          }}
+        />
+
+        <Stack.Screen
+          name="package-details"
+          options={{
+            headerShown: true,
+            title: "Package Details",
+            headerTitleAlign: "center",
+            headerTitleStyle: {
+              fontFamily: "Roboto-Bold",
+              fontSize: 20,
+              color: "black",
+            },
+            headerStyle: {
+              backgroundColor: "#FFFFFF",
+            },
+            headerShadowVisible: false,
+            headerLeft: () => (
+              <Pressable
+                onPress={() => {
+                  router.back();
+                }}
+              >
+                <Icon name="keyboard-arrow-left" size={30} color="black" />
+              </Pressable>
+            ),
+          }}
+        />
       </Stack>
     </>
   );
