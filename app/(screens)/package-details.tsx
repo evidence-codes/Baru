@@ -20,20 +20,71 @@ import {
 import { ChevronDownIcon } from "@/components/ui/icon";
 import { useState } from "react";
 import { FontAwesome5, Fontisto } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useForm, FormData } from "@/context/FormContext";
+import { useMutation } from "@tanstack/react-query";
+import { Response } from "@/constants/ApiResponse";
+import { createPackage } from "@/api/package";
 
 export default function PackageDetails() {
-  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const router = useRouter();
+  const { updateFormData } = useForm();
+
+  const [selectedValue, setSelectedValue] = useState<string>("");
   const [packageInput, setPackageInput] = useState<string>("");
   const [packageWeight, setPackageWeight] = useState<string>("");
   const [quantityValue, setQuantityValue] = useState<string>("");
   const [value, setValue] = useState<string>("");
-  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const options = [
     { label: "Motorcycle", icon: Fontisto, iconName: "motorcycle" },
     { label: "Car", icon: Fontisto, iconName: "car" },
     { label: "Truck", icon: FontAwesome5, iconName: "truck" },
   ];
+
+  // const {mutate: submitMutation} = useMutation({
+  //   mutationFn: async (data: FormData) => {
+  //     updateFormData({ category: selectedValue, packageName: packageInput, weight: Number(packageWeight), quantity: Number(quantityValue), value: Number(value), preferredVehicle: [selectedVehicle] });
+  //     const response = await createPackage(data)
+  //     return response.data as Response;
+  //   },
+  //   onSuccess: async (data: Response) => {
+  //     if (data.success) {
+  //       router.push("")
+  //     } else {
+  //       console.error(data.message);
+  //       setErrorMessage(data.message);
+  //     }
+  //   },
+  //   onError: (error: any) => {
+  //     if (error.response) {
+  //       const backendErrorMessage =
+  //         error.response.data?.message || "An error occurred";
+  //       setErrorMessage(backendErrorMessage);
+  //     } else {
+  //       setErrorMessage("An error occurred while creating a package.");
+  //     }
+  //     console.error("Error creating a package:", error.response?.data?.message);
+  //   },
+  // })
+
+  // const handleSubmit = () => {
+  //   submitMutation(formData)
+  // };
+
+  const handleNext = () => {
+    updateFormData({
+      category: selectedValue,
+      packageName: packageInput,
+      weight: Number(packageWeight),
+      quantity: Number(quantityValue),
+      value: Number(value),
+      preferredVehicle: [selectedVehicle],
+    });
+    router.push("");
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#FFFFFF] px-4">
@@ -274,7 +325,7 @@ export default function PackageDetails() {
           variant="solid"
           action="primary"
           className="w-full bg-[#2B63E1] h-12 rounded-[8px] mt-6 mb-4"
-          onPress={() => {}}
+          onPress={handleNext}
         >
           <ButtonText className="font-roboto_medium text-[16px] text-white">
             Next

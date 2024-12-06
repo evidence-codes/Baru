@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 
-interface FormData {
+export interface FormData {
   receiverName?: string;
   receiverPhoneNumber?: string;
   category?: string;
