@@ -24,24 +24,31 @@ import { useRouter } from "expo-router";
 import { useForm, FormData } from "@/context/FormContext";
 import { useMutation } from "@tanstack/react-query";
 import { Response } from "@/constants/ApiResponse";
-import { createPackage } from "@/api/package";
+import { PriceData, calculatePrice } from "@/api/package";
 
 export default function PackageDetails() {
   const router = useRouter();
-  const { updateFormData } = useForm();
+  const { updateFormData, formData } = useForm();
 
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [packageInput, setPackageInput] = useState<string>("");
-  const [packageWeight, setPackageWeight] = useState<string>("");
+  const [packageWeight, setPackageWeight] = useState<number>(0);
   const [quantityValue, setQuantityValue] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<string>("");
+  const [receiverName, setReceiverName] = useState<string>("");
+  const [receiverPhone, setReceiverPhone] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const options = [
-    { label: "Motorcycle", icon: Fontisto, iconName: "motorcycle" },
-    { label: "Car", icon: Fontisto, iconName: "car" },
-    { label: "Truck", icon: FontAwesome5, iconName: "truck" },
+    {
+      label: "Motorcycle",
+      value: "bike",
+      icon: Fontisto,
+      iconName: "motorcycle",
+    },
+    { label: "Car", value: "car", icon: Fontisto, iconName: "car" },
+    { label: "Truck", value: "truck", icon: FontAwesome5, iconName: "truck" },
   ];
 
   // const {mutate: submitMutation} = useMutation({
@@ -74,16 +81,60 @@ export default function PackageDetails() {
   //   submitMutation(formData)
   // };
 
-  const handleNext = () => {
-    updateFormData({
-      category: selectedValue,
-      packageName: packageInput,
-      weight: Number(packageWeight),
-      quantity: Number(quantityValue),
-      value: Number(value),
-      preferredVehicle: [selectedVehicle],
-    });
-    router.push("");
+  const handleNext = async () => {
+    const vehicle = options.find(
+      (option) => option.label === selectedVehicle
+    )?.value;
+    const fetchPrice = async () => {
+      if (
+        !formData ||
+        !formData.distance ||
+        typeof packageWeight !== "number"
+      ) {
+        console.warn("Missing required form data for price calculation.");
+        return;
+      }
+
+      try {
+        const priceData: PriceData = {
+          weight: packageWeight,
+          distance: formData.distance,
+          category: selectedValue || "normal",
+          preferredVehicle: vehicle || "bike",
+        };
+
+        const response = await calculatePrice(priceData);
+        const costData = (await response.data) as Response;
+
+        if (costData?.data) {
+          const cost = costData.data as unknown as number;
+
+          return cost;
+        } else {
+          console.warn("Price data not found in response.");
+        }
+      } catch (error) {
+        console.error("Error calculating price:", error);
+      }
+    };
+
+    try {
+      const cost = await fetchPrice(); // Wait for the promise to resolve
+      updateFormData({
+        category: selectedValue,
+        packageName: packageInput,
+        weight: Number(packageWeight),
+        quantity: Number(quantityValue),
+        value: Number(value),
+        receiverName: receiverName,
+        receiverPhoneNumber: receiverPhone,
+        preferredVehicle: vehicle,
+        deliveryCost: cost,
+      });
+      router.push("/(screens)/map");
+    } catch (error) {
+      console.error("Error calculating price:", error);
+    }
   };
 
   return (
@@ -184,16 +235,14 @@ export default function PackageDetails() {
                   className={`font-roboto_regular text-[12px] ${
                     packageWeight ? "text-black" : "text-[#979797]"
                   }`}
-                  defaultValue={packageWeight}
+                  defaultValue={packageWeight.toString()}
                   onChangeText={(text: string) => {
-                    // Allow only numeric characters and a single decimal point
-                    const numericValue = text.replace(/[^0-9.]/g, ""); // Remove invalid characters
+                    const numericValue = text.replace(/[^0-9.]/g, "");
                     if (/^\d*\.?\d*$/.test(numericValue)) {
-                      // Validate numeric format
-                      setPackageWeight(numericValue);
+                      setPackageWeight(parseFloat(numericValue));
                     }
                   }}
-                  keyboardType="numeric" // Ensures numeric keypad on mobile devices
+                  keyboardType="numeric"
                 />
                 <InputSlot>
                   <Text
@@ -280,6 +329,55 @@ export default function PackageDetails() {
               </VStack>
             </VStack>
           </VStack>
+
+          <VStack className="mb-4">
+            <Text className="font-roboto_regular text-[16px] text-black">
+              Receivers Name
+            </Text>
+            <VStack className="mt-2">
+              <Input
+                className={`h-14 rounded-lg ${
+                  receiverName
+                    ? "bg-[#ffffff] "
+                    : "bg-[#E5E5E5] border-outline-0"
+                }`}
+              >
+                <InputField
+                  placeholder="Receiver's Name"
+                  className={`font-roboto_regular text-[12px] ${
+                    receiverName ? "text-black" : "text-[#979797]"
+                  }`}
+                  defaultValue={receiverName}
+                  onChangeText={(text: string) => setReceiverName(text)}
+                />
+              </Input>
+            </VStack>
+          </VStack>
+
+          <VStack className="mb-4">
+            <Text className="font-roboto_regular text-[16px] text-black">
+              Receivers Phone
+            </Text>
+            <VStack className="mt-2">
+              <Input
+                className={`h-14 rounded-lg ${
+                  receiverPhone
+                    ? "bg-[#ffffff] "
+                    : "bg-[#E5E5E5] border-outline-0"
+                }`}
+              >
+                <InputField
+                  placeholder="Receiver's Phone"
+                  className={`font-roboto_regular text-[12px] ${
+                    receiverPhone ? "text-black" : "text-[#979797]"
+                  }`}
+                  defaultValue={receiverPhone}
+                  onChangeText={(text: string) => setReceiverPhone(text)}
+                  keyboardType="phone-pad"
+                />
+              </Input>
+            </VStack>
+          </VStack>
         </VStack>
 
         <VStack className="my-4">
@@ -318,20 +416,21 @@ export default function PackageDetails() {
             })}
           </VStack>
         </VStack>
+
+        <VStack className="flex-1 justify-end items-start pb-4">
+          <Button
+            size="lg"
+            variant="solid"
+            action="primary"
+            className="w-full bg-[#2B63E1] h-12 rounded-[8px] mt-6 mb-4"
+            onPress={handleNext}
+          >
+            <ButtonText className="font-roboto_medium text-[16px] text-white">
+              Next
+            </ButtonText>
+          </Button>
+        </VStack>
       </ScrollView>
-      <VStack className="flex-1 justify-end items-start pb-4">
-        <Button
-          size="lg"
-          variant="solid"
-          action="primary"
-          className="w-full bg-[#2B63E1] h-12 rounded-[8px] mt-6 mb-4"
-          onPress={handleNext}
-        >
-          <ButtonText className="font-roboto_medium text-[16px] text-white">
-            Next
-          </ButtonText>
-        </Button>
-      </VStack>
     </SafeAreaView>
   );
 }

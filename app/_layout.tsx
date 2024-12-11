@@ -17,6 +17,7 @@ import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
 import { FormProvider } from "@/context/FormContext";
+import { LocationProvider } from "@/context/LocationContext";
 
 const client = new QueryClient();
 
@@ -88,22 +89,30 @@ function RootLayoutNav() {
       <GluestackUIProvider mode="light">
         <AuthProvider>
           <FormProvider>
-            <ThemeProvider
-              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-            >
-              <Stack>
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="(screens)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="modal"
-                  options={{ presentation: "modal" }}
-                />
-              </Stack>
-            </ThemeProvider>
+            <LocationProvider>
+              <ThemeProvider
+                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+              >
+                <Stack>
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(screens)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="modal"
+                    options={{ presentation: "modal" }}
+                  />
+                </Stack>
+              </ThemeProvider>
+            </LocationProvider>
           </FormProvider>
         </AuthProvider>
       </GluestackUIProvider>

@@ -144,6 +144,33 @@ export default function ScreensLayout() {
             ),
           }}
         />
+
+        <Stack.Screen
+          name="map"
+          options={{
+            headerShown: false,
+            title: "",
+            headerTitleAlign: "center",
+            headerTitleStyle: {
+              fontFamily: "Roboto-Bold",
+              fontSize: 20,
+              color: "black",
+            },
+            headerStyle: {
+              backgroundColor: "#FFFFFF",
+            },
+            headerShadowVisible: false,
+            headerLeft: () => (
+              <Pressable
+                onPress={() => {
+                  router.back();
+                }}
+              >
+                <Icon name="keyboard-arrow-left" size={30} color="black" />
+              </Pressable>
+            ),
+          }}
+        />
       </Stack>
     </>
   );

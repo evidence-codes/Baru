@@ -7,13 +7,14 @@ import ReceiveBox from "@/assets/images/svg/receive-box.svg";
 import QuestionMark from "@/assets/images/svg/question-mark.svg";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { SearchIcon } from "@/components/ui/icon";
-import SentBox from "@/components/SentBox";
-import ReceivedBox from "@/components/ReceivedBox";
+import SendDetails from "@/components/SentBox";
 import { useRouter } from "expo-router";
 import { Pressable } from "@/components/ui/pressable";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { getPackages } from "@/api/package";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -21,6 +22,14 @@ export default function HomeScreen() {
 
   const [fullName, setFullName] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState<string>("");
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["packageHistory"],
+    queryFn: getPackages,
+    staleTime: 1000 * 60 * 5,
+  });
+  console.log(data?.data);
+  const packages = data?.data || [];
 
   useEffect(() => {
     // const fetchUserInfo = async () => {
@@ -146,7 +155,7 @@ export default function HomeScreen() {
             </VStack>
           </VStack>
 
-          <VStack className="mt-8">
+          {/* <VStack className="mt-8">
             <Text className="text-[18px] font-roboto_bold text-[#000]">
               Recent Orders
             </Text>
@@ -164,70 +173,80 @@ export default function HomeScreen() {
             <Text className="text-[16px] font-roboto_medium text-[#000] mt-6 mb-2">
               Current Tracking
             </Text>
-            <SentBox
-              title="Transit"
-              id="#BARU-3445-11L0"
-              progress={50}
-              locationFrom="Lekki"
-              locationTo="Oshodi"
-              dateFrom="10 Oct"
-              dateTo="11 Oct"
-              onPress={() =>
-                router.push({
-                  pathname: "/(screens)/sent-details",
-                  params: {
-                    id: "#BARU-3445-11L0",
-                    progress: 50,
-                    from: "Lekki",
-                    to: "Oshodi",
-                    sender: "You",
-                    receiver: "1134322",
-                    createdDate: "10 Oct",
-                    estimatedDate: "11 Oct",
-                    pickupDate: "11 Oct",
-                    pickupTime: "1:30PM",
-                    weight: "5kg",
-                    status: "Transit",
-                    courierName: "Naruto HustleMaki",
-                    courierPhone: "0810-000-0000",
-                    courierLocation: "Lekki",
-                  },
-                })
-              }
-            />
-            ;
-            <ReceivedBox
-              title="Transit"
-              id="#BARU-1445-12AL"
-              progress={50}
-              locationFrom="Abeokuta"
-              locationTo="Lekki"
-              dateFrom="10 Oct"
-              dateTo="11 Oct"
-              onPress={() =>
-                router.push({
-                  pathname: "/(screens)/receive-details",
-                  params: {
-                    id: "#BARU-1445-12AL",
-                    progress: 50,
-                    from: "Abeokuta",
-                    to: "Lekki",
-                    sender: "1233434",
-                    receiver: "You",
-                    createdDate: "10 Oct",
-                    estimatedDate: "11 Oct",
-                    pickupDate: "11 Oct",
-                    pickupTime: "1:30PM",
-                    weight: "7kg",
-                    status: "Transit",
-                    courierName: "Naruto HustleMaki",
-                    courierPhone: "0810-000-0000",
-                    courierLocation: "Lekki",
-                  },
-                })
-              }
-            />
-          </VStack>
+            {packages.data.map((pkg: any) => (
+              <SendDetails
+                key={pkg.id}
+                title={pkg.status}
+                id={pkg.trackingID || "N/A"}
+                progress={pkg.eta ? Math.min(pkg.eta * 10, 100) : 0} // Example progress calculation
+                locationFrom={
+                  pkg.pickupLocation.split(",")[
+                    pkg.pickupLocation.split(",").length - 1
+                  ] || "Unknown Pickup Location"
+                }
+                locationTo={pkg.dropOffLocation || "Unknown Drop-Off Location"}
+                dateFrom={
+                  new Date(pkg.createdAt).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                  }) || "Unknown Date"
+                }
+                dateTo={
+                  pkg.lastUpdatedAt
+                    ? new Date(pkg.lastUpdatedAt).toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "short",
+                      })
+                    : "Unknown Date"
+                }
+                onPress={() =>
+                  router.push({
+                    pathname: "/(screens)/sent-details",
+                    params: {
+                      id: pkg.trackingID || "N/A",
+                      progress: pkg.eta ? Math.min(pkg.eta * 10, 100) : 0,
+                      from: pkg.pickupLocation || "Unknown Pickup Location",
+                      to: pkg.dropOffLocation || "Unknown Drop-Off Location",
+                      sender: pkg.sender?.name || "Unknown Sender",
+                      receiver: pkg.receiverName || "Unknown Receiver",
+                      createdDate:
+                        new Date(pkg.createdAt).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                        }) || "Unknown Date",
+                      estimatedDate: pkg.lastUpdatedAt
+                        ? new Date(pkg.lastUpdatedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            }
+                          )
+                        : "Unknown Date",
+                      pickupDate: pkg.lastUpdatedAt
+                        ? new Date(pkg.lastUpdatedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            }
+                          )
+                        : "Unknown Date",
+                      pickupTime: "N/A", // Default value as it's missing in your data
+                      weight: `${pkg.weight || "N/A"}kg`,
+                      status: pkg.status || "Unknown Status",
+                      courierName: pkg.courierName || "Unknown Courier",
+                      courierPhone: pkg.courierPhoneNumber || "N/A",
+                      courierLocation:
+                        pkg.currentLatitude && pkg.currentLongitude
+                          ? `Lat: ${pkg.currentLatitude}, Lon: ${pkg.currentLongitude}`
+                          : "Unknown Location",
+                    },
+                  })
+                }
+              />
+            ))}
+          </VStack> */}
         </VStack>
       </ScrollView>
     </SafeAreaView>

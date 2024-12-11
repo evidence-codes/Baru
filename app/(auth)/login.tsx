@@ -79,7 +79,7 @@ export default function Login() {
 
       // Create a promise for the setTimeout
       const timeoutPromise = new Promise((resolve) =>
-        setTimeout(resolve, 5000)
+        setTimeout(resolve, 9000)
       );
 
       try {

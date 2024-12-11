@@ -8,11 +8,13 @@ export interface FormData {
   weight?: number;
   quantity?: number;
   value?: number;
-  preferredVehicle?: string[];
+  preferredVehicle?: string;
   pickupLocation?: string;
   dropOffLocation?: string;
   deliveryInstructions?: string;
+  deliveryCost?: number;
   distance?: number;
+  eta?: number;
 }
 
 interface FormContextType {
