@@ -75,9 +75,12 @@ export default function Profile() {
           error.response.data?.message || "An error occurred";
         setErrorMessage(backendErrorMessage);
       } else {
-        setErrorMessage("An error occurred while sending OTP.");
+        setErrorMessage("An error occurred while creating user profile.");
       }
-      console.error("Error sending OTP:", error.response?.data?.message);
+      console.error(
+        "Error creating user profile:",
+        error.response?.data?.message
+      );
     },
   });
 

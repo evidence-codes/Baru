@@ -99,6 +99,10 @@ function RootLayoutNav() {
                     options={{ headerShown: false }}
                   />
                   <Stack.Screen
+                    name="(auth)/courier"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
                     name="(tabs)"
                     options={{ headerShown: false }}
                   />

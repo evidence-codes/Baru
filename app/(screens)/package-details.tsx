@@ -185,7 +185,6 @@ export default function PackageDetails() {
                     <SelectItem
                       label="Oversized"
                       value="oversized"
-                      isDisabled={true}
                       className="font-roboto_regular text-[12px]"
                     />
                   </SelectContent>

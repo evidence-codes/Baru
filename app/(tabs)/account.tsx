@@ -5,10 +5,16 @@ import { FontAwesome6, Ionicons, FontAwesome } from "@expo/vector-icons";
 import MoneyBag from "@/assets/images/svg/money-bag.svg";
 import BriefCase from "@/assets/images/svg/briefcase.svg";
 import { useAuth } from "@/context/AuthContext";
+import { Pressable } from "@/components/ui/pressable";
+import { useRouter } from "expo-router";
 
 export default function Account() {
   const { user } = useAuth();
+  const router = useRouter();
 
+  const handleDeliveryService = () => {
+    router.push("/(auth)/(courier)/login");
+  };
   return (
     <SafeAreaView className="flex-1 bg-white px-4 mt-10">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -69,18 +75,20 @@ export default function Account() {
               App Settings
             </Text>
           </VStack>
-          <VStack className="flex-row items-center mb-8">
-            <MoneyBag width={24} height={24} />
-            <Text className="text-[18px] font-roboto_regular text-black ml-4">
-              Earn by delivering
-            </Text>
-          </VStack>
-          <VStack className="flex-row items-center mb-8">
+          <Pressable onPress={handleDeliveryService}>
+            <VStack className="flex-row items-center mb-8">
+              <MoneyBag width={24} height={24} />
+              <Text className="text-[18px] font-roboto_regular text-black ml-4">
+                Earn by delivering
+              </Text>
+            </VStack>
+          </Pressable>
+          {/* <VStack className="flex-row items-center mb-8">
             <BriefCase width={24} height={24} />
             <Text className="text-[18px] font-roboto_regular text-black ml-4">
               Set up your business profile
             </Text>
-          </VStack>
+          </VStack> */}
           <VStack className="flex-row items-center mb-8">
             <Ionicons name="help-circle-outline" size={24} color="black" />
             <Text className="text-[18px] font-roboto_regular text-black ml-4">

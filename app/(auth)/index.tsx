@@ -35,6 +35,11 @@ export default function GetStarted() {
     setShowActionsheet(false);
     router.push("/(auth)/login");
   };
+
+  const handleCourierLogin = () => {
+    setShowActionsheet(false);
+    router.push("/(auth)/(courier)/login");
+  };
   return (
     <ImageBackground
       source={delivery}
@@ -129,20 +134,16 @@ export default function GetStarted() {
                     variant="outline"
                     action="primary"
                     className="w-full h-12 rounded-[8px] mt-6 mb-4 flex-row items-center"
+                    onPress={handleCourierLogin}
                   >
-                    <Image
-                      source={googleLogo}
-                      style={{ width: 20, height: 20, marginRight: 10 }}
-                      resizeMode="contain"
-                    />
                     <ButtonText className="font-roboto_medium text-[16px] text-black">
-                      Continue with Google
+                      Login as a Courier
                     </ButtonText>
                   </Button>
                 </ActionsheetItemText>
               </ActionsheetItem>
 
-              <ActionsheetItem onPress={handleClose}>
+              {/* <ActionsheetItem onPress={handleClose}>
                 <ActionsheetItemText>
                   <Button
                     size="lg"
@@ -161,7 +162,7 @@ export default function GetStarted() {
                     </ButtonText>
                   </Button>
                 </ActionsheetItemText>
-              </ActionsheetItem>
+              </ActionsheetItem> */}
             </ActionsheetContent>
           </Actionsheet>
         </VStack>
