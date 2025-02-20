@@ -56,8 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (!user && !isAuthRoute) {
       router.replace("/(auth)/login"); // Redirect to login if not authenticated
-    } else if (user && isAuthRoute) {
-      router.replace("/(tabs)/home"); // Redirect to home if authenticated
+    } else if (user && isAuthRoute && segments[1] !== "(courier)") {
+      router.replace("/(tabs)/home");
     }
   }, [user, loading, segments]);
 

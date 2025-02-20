@@ -21,8 +21,10 @@ export default function Account() {
   };
 
   const handleDeliveryService = () => {
+    console.log("Navigating to delivery service login");
     router.push("/(auth)/(courier)/login");
   };
+
   return (
     <SafeAreaView className="flex-1 bg-white px-4 mt-10">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -58,7 +60,7 @@ export default function Account() {
             </VStack>
           </Pressable>
 
-          <VStack className="flex-row items-center mb-8">
+          {/* <VStack className="flex-row items-center mb-8">
             <Ionicons
               name="card-outline"
               size={24}
@@ -68,7 +70,7 @@ export default function Account() {
             <Text className="text-[18px] font-roboto_regular text-black ml-4">
               Manage Payment Methods
             </Text>
-          </VStack>
+          </VStack> */}
           <Pressable onPress={handleMessaging}>
             <VStack className="flex-row items-center mb-8">
               <FontAwesome
@@ -83,7 +85,7 @@ export default function Account() {
             </VStack>
           </Pressable>
 
-          <VStack className="flex-row items-center mb-8">
+          {/* <VStack className="flex-row items-center mb-8">
             <Ionicons
               name="settings-outline"
               size={24}
@@ -93,7 +95,7 @@ export default function Account() {
             <Text className="text-[18px] font-roboto_regular text-black ml-4">
               App Settings
             </Text>
-          </VStack>
+          </VStack> */}
           <Pressable onPress={handleDeliveryService}>
             <VStack className="flex-row items-center mb-8">
               <MoneyBag width={24} height={24} />

@@ -22,7 +22,7 @@ interface LoginData {
   };
 }
 
-export default function Login() {
+export default function CourierLogin() {
   const router = useRouter();
   const params = useLocalSearchParams();
 

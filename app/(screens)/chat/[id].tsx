@@ -1,68 +1,100 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native";
-import { ScrollView } from "react-native";
+import { SafeAreaView, View, Image, FlatList } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { VStack } from "@/components/ui/vstack";
 import { Input, InputField } from "@/components/ui/input";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function ChatScreen() {
-  const { id } = useLocalSearchParams(); // Use useLocalSearchParams instead of route.params
+  const { id } = useLocalSearchParams();
   const router = useRouter();
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hello!", sender: "John Doe" },
-    { id: 2, text: "Hey there!", sender: "Me" },
+    {
+      id: 1,
+      text: "Hello!",
+      sender: "John Doe",
+      avatar: "https://i.pravatar.cc/300",
+    },
+    { id: 2, text: "Hey there!", sender: "Me", avatar: "" },
   ]);
   const [message, setMessage] = useState("");
+  const flatListRef = useRef<FlatList>(null);
 
   const handleSend = () => {
     if (message.trim()) {
-      setMessages([
-        ...messages,
-        { id: messages.length + 1, text: message, sender: "Me" },
-      ]);
+      const newMessage = {
+        id: messages.length + 1,
+        text: message,
+        sender: "Me",
+        avatar: "",
+      };
+      setMessages((prevMessages) => [newMessage, ...prevMessages]); // Prepend new messages
       setMessage("");
+
+      // Scroll to the bottom when a new message is sent
+      setTimeout(() => {
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      }, 100);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFFFF] px-4 pt-6">
+    <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" backgroundColor="#FFFFFF" />
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        <VStack className="mt-6">
-          {messages.map((msg) => (
-            <VStack key={msg.id} className="mb-2">
+
+      {/* Chat Messages with FlatList (Inverted for Bottom-to-Top) */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item: msg }) => (
+          <View
+            className={`flex-row items-end ${
+              msg.sender === "Me" ? "justify-end" : "justify-start"
+            } px-4 my-2`}
+          >
+            {msg.sender !== "Me" && (
+              <Image
+                source={{ uri: msg.avatar }}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+            )}
+            <View
+              className={`rounded-lg px-4 py-2 max-w-[75%] ${
+                msg.sender === "Me"
+                  ? "bg-[#007AFF] text-white self-end"
+                  : "bg-gray-200 self-start"
+              }`}
+            >
               <Text
-                className={
-                  msg.sender === "Me"
-                    ? "text-right text-blue-500"
-                    : "text-left text-black"
-                }
+                className={`text-[14px] font-roboto_regular ${
+                  msg.sender === "Me" ? "text-white" : "text-black"
+                }`}
               >
                 {msg.text}
               </Text>
-            </VStack>
-          ))}
-        </VStack>
-      </ScrollView>
-      <VStack className="p-4 border-t border-gray-300">
-        <Input className="h-14 rounded-lg bg-[#E5E5E5] border-outline-0">
+            </View>
+          </View>
+        )}
+        inverted // Invert list to start from the bottom
+        contentContainerStyle={{ paddingTop: 10 }}
+      />
+
+      {/* Message Input */}
+      <VStack className="p-4 border-t border-gray-300 flex-row items-center bg-white">
+        <Input className="flex-1 h-12 rounded-full bg-gray-100 px-4 font-roboto_regular">
           <InputField
-            placeholder="Type a message"
-            className="font-roboto_regular text-[12px] text-black"
+            placeholder="Message..."
+            className="text-[14px] text-black font-roboto_regular"
             value={message}
             onChangeText={setMessage}
           />
         </Input>
-        <Button
-          onPress={handleSend}
-          className="bg-[#007BFF] h-14 rounded-lg mt-2"
-        >
-          <ButtonText className="text-white font-roboto_medium text-[16px]">
-            Send
-          </ButtonText>
+        <Button onPress={handleSend} className="ml-2 bg-transparent">
+          <FontAwesome name="paper-plane" size={24} color="#007AFF" />
         </Button>
       </VStack>
     </SafeAreaView>

@@ -77,7 +77,9 @@ export default function HomeScreen() {
               </Text>
             </VStack>
           </VStack>
-          <MaterialIcons name="notifications-none" size={24} color="black" />
+          <Pressable onPress={() => router.push("/(screens)/notifications")}>
+            <MaterialIcons name="notifications-none" size={24} color="black" />
+          </Pressable>
         </VStack>
 
         <VStack className="mt-10">

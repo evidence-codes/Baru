@@ -52,9 +52,10 @@ export default function Login() {
         };
         console.log(userInfo);
         await SecureStore.setItemAsync("userInfo", JSON.stringify(userInfo));
-        router.push({
-          pathname: "/(tabs)/home",
-        });
+        // router.push({
+        //   pathname: "/(tabs)/home",
+        // });
+        router.push("/(tabs)/home");
       } else {
         console.error(data.message);
         setErrorMessage(data.message);

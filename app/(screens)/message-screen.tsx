@@ -38,7 +38,9 @@ export default function MessagesScreen() {
               <Text className="text-black text-lg font-roboto_medium">
                 {chat.name}
               </Text>
-              <Text className="text-gray-500 text-sm">{chat.lastMessage}</Text>
+              <Text className="text-gray-500 text-sm font-roboto_regular">
+                {chat.lastMessage}
+              </Text>
             </TouchableOpacity>
           ))}
         </VStack>
