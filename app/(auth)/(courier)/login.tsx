@@ -74,35 +74,36 @@ export default function Login() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (isFormValid) {
-      setLoading(true); // Show loading screen
+    // if (isFormValid) {
+    //   setLoading(true); // Show loading screen
 
-      // Create a promise for the setTimeout
-      const timeoutPromise = new Promise((resolve) =>
-        setTimeout(resolve, 9000)
-      );
+    //   // Create a promise for the setTimeout
+    //   const timeoutPromise = new Promise((resolve) =>
+    //     setTimeout(resolve, 9000)
+    //   );
 
-      try {
-        // Start both the timeout and the login mutation
-        const [loginResponse] = await Promise.allSettled([
-          loginMutation(),
-          timeoutPromise,
-        ]);
+    //   try {
+    //     // Start both the timeout and the login mutation
+    //     const [loginResponse] = await Promise.allSettled([
+    //       loginMutation(),
+    //       timeoutPromise,
+    //     ]);
 
-        // Process the response from the login mutation
-        if (loginResponse.status === "fulfilled") {
-          console.log("Login successful:", loginResponse.value);
-        } else {
-          console.log("Login failed:", loginResponse.reason);
-        }
-      } catch (error) {
-        console.error("An error occurred during login:", error);
-      } finally {
-        setLoading(false); // Hide loading screen
-      }
-    } else {
-      console.log("Please ensure all fields are filled out correctly.");
-    }
+    //     // Process the response from the login mutation
+    //     if (loginResponse.status === "fulfilled") {
+    //       console.log("Login successful:", loginResponse.value);
+    //     } else {
+    //       console.log("Login failed:", loginResponse.reason);
+    //     }
+    //   } catch (error) {
+    //     console.error("An error occurred during login:", error);
+    //   } finally {
+    //     setLoading(false); // Hide loading screen
+    //   }
+    // } else {
+    //   console.log("Please ensure all fields are filled out correctly.");
+    // }
+    router.push("/(courier-screen)/home");
   };
 
   if (loading) {

@@ -12,14 +12,6 @@ export default function Account() {
   const { user } = useAuth();
   const router = useRouter();
 
-  const handleManageAccount = () => {
-    router.push("/(screens)/edit-account");
-  };
-
-  const handleMessaging = () => {
-    router.push("/(screens)/message-screen");
-  };
-
   const handleDeliveryService = () => {
     router.push("/(auth)/(courier)/login");
   };
@@ -44,20 +36,12 @@ export default function Account() {
         </VStack>
 
         <VStack className="mt-6">
-          <Pressable onPress={handleManageAccount}>
-            <VStack className="flex-row items-center mb-8">
-              <FontAwesome6
-                name="user"
-                size={24}
-                color="black"
-                className="w-8"
-              />
-              <Text className="text-[18px] font-roboto_regular text-black ml-4">
-                Manage Barῦ account
-              </Text>
-            </VStack>
-          </Pressable>
-
+          <VStack className="flex-row items-center mb-8">
+            <FontAwesome6 name="user" size={24} color="black" className="w-8" />
+            <Text className="text-[18px] font-roboto_regular text-black ml-4">
+              Manage Barῦ account
+            </Text>
+          </VStack>
           <VStack className="flex-row items-center mb-8">
             <Ionicons
               name="card-outline"
@@ -69,20 +53,17 @@ export default function Account() {
               Manage Payment Methods
             </Text>
           </VStack>
-          <Pressable onPress={handleMessaging}>
-            <VStack className="flex-row items-center mb-8">
-              <FontAwesome
-                name="envelope-o"
-                size={24}
-                color="black"
-                className="w-8"
-              />
-              <Text className="text-[18px] font-roboto_regular text-black ml-4">
-                Messages
-              </Text>
-            </VStack>
-          </Pressable>
-
+          <VStack className="flex-row items-center mb-8">
+            <FontAwesome
+              name="envelope-o"
+              size={24}
+              color="black"
+              className="w-8"
+            />
+            <Text className="text-[18px] font-roboto_regular text-black ml-4">
+              Messages
+            </Text>
+          </VStack>
           <VStack className="flex-row items-center mb-8">
             <Ionicons
               name="settings-outline"

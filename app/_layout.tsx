@@ -1,3 +1,4 @@
+import React from "react";
 import { StatusBar } from "expo-status-bar"; // Import StatusBar from expo-status-bar
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import "@/global.css";
@@ -8,14 +9,14 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { FormProvider } from "@/context/FormContext";
 import { LocationProvider } from "@/context/LocationContext";
 
@@ -62,64 +63,42 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(console.warn);
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  // useReactQueryDevTools(client);
+  useReactQueryDevTools(client);
 
   return (
-    <GluestackUIProvider mode="light">
-      <RootLayoutNav />
-      {/* Add StatusBar component here */}
-      <StatusBar style="dark" backgroundColor="white" />
-    </GluestackUIProvider>
+    <AuthProvider>
+      <QueryClientProvider client={client}>
+        <GluestackUIProvider mode="light">
+          <RootLayoutNav />
+
+          {/* Add StatusBar component here */}
+          <StatusBar style="dark" backgroundColor="white" />
+        </GluestackUIProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
 function RootLayoutNav() {
+  const { user, loading } = useAuth();
   const colorScheme = useColorScheme();
 
+  if (loading) return null;
+
   return (
-    <QueryClientProvider client={client}>
-      <GluestackUIProvider mode="light">
-        <AuthProvider>
-          <FormProvider>
-            <LocationProvider>
-              <ThemeProvider
-                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-              >
-                <Stack>
-                  <Stack.Screen
-                    name="(auth)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(auth)/courier"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(screens)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="modal"
-                    options={{ presentation: "modal" }}
-                  />
-                </Stack>
-              </ThemeProvider>
-            </LocationProvider>
-          </FormProvider>
-        </AuthProvider>
-      </GluestackUIProvider>
-    </QueryClientProvider>
+    <FormProvider>
+      <LocationProvider>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          {/* Slot will automatically render the correct navigator */}
+          <Slot />
+        </ThemeProvider>
+      </LocationProvider>
+    </FormProvider>
   );
 }

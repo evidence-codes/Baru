@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import { useRouter, useSegments } from "expo-router";
 
 interface User {
   accessToken: string;
@@ -27,27 +28,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments(); // Get current route segments
 
-  // Load user info from SecureStore when the app starts
   useEffect(() => {
     const fetchUser = async () => {
-      const storedUser = await SecureStore.getItemAsync("userInfo");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      try {
+        const storedUser = await SecureStore.getItemAsync("userInfo");
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error("Error fetching user session:", error);
+      } finally {
+        setLoading(false); // Ensure loading state is updated
       }
-      setLoading(false);
     };
 
     fetchUser();
   }, []);
 
-  // Login: Save user data to SecureStore and context
-  const login = (userData: User) => {
-    SecureStore.setItemAsync("userInfo", JSON.stringify(userData));
+  useEffect(() => {
+    if (loading) return; // Wait until the user state is set
+
+    const isAuthRoute = segments[0] === "(auth)";
+
+    if (!user && !isAuthRoute) {
+      router.replace("/(auth)/login"); // Redirect to login if not authenticated
+    } else if (user && isAuthRoute) {
+      router.replace("/(tabs)/home"); // Redirect to home if authenticated
+    }
+  }, [user, loading, segments]);
+
+  const login = async (userData: User) => {
+    await SecureStore.setItemAsync("userInfo", JSON.stringify(userData));
     setUser(userData);
   };
 
-  // Logout: Remove user data from SecureStore and context
   const logout = async () => {
     await SecureStore.deleteItemAsync("userInfo");
     setUser(null);
@@ -55,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

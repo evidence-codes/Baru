@@ -32,17 +32,17 @@ export default function HomeScreen() {
   const packages = data?.data || [];
 
   useEffect(() => {
-    // const fetchUserInfo = async () => {
-    //   try {
-    //     const userInfoString = await SecureStore.getItemAsync("userInfo");
-    //     if (userInfoString) {
-    //       const userInfo = JSON.parse(userInfoString);
-    //       setFullName(userInfo.fullName); // Assuming fullName is a property in userInfo
-    //     }
-    //   } catch (error) {
-    //     console.error("Error retrieving user info from SecureStore:", error);
-    //   }
-    // };
+    const fetchUserInfo = async () => {
+      try {
+        const userInfoString = await SecureStore.getItemAsync("userInfo");
+        if (userInfoString) {
+          const userInfo = JSON.parse(userInfoString);
+          setFullName(userInfo.fullName); // Assuming fullName is a property in userInfo
+        }
+      } catch (error) {
+        console.error("Error retrieving user info from SecureStore:", error);
+      }
+    };
 
     // Set current date
     const date = new Date();
@@ -51,7 +51,7 @@ export default function HomeScreen() {
     })}, ${date.getFullYear()}`;
     setCurrentDate(formattedDate);
 
-    // fetchUserInfo();
+    fetchUserInfo();
   }, []);
 
   const handleSend = () => {
